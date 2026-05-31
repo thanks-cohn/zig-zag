@@ -10,35 +10,14 @@ milestone is deliberately small: establish a CLI that developers can trust.
 
 ## Current Status
 
-This repository currently contains the first working foundation:
+The first real CLI foundation works now:
 
-- `zag` is a Zig CLI built by the repository root `build.zig`.
-- `zag version` prints the CLI version.
-- `zag help` prints supported commands.
-- `zag doctor` checks:
-  - Zig can be executed with `zig version`.
-  - The current directory is writable.
-  - The templates directory can be found.
-  - The basic project template can be found.
-- `zag new <name>` creates a real Zig project from `templates/basic`.
-- A generated project contains:
-
-  ```text
-  <name>/
-  ├── build.zig
-  └── src/
-      └── main.zig
-  ```
-
-- A generated project is expected to support:
-
-  ```sh
-  zig build
-  zig build run
-  ```
-
-- `tests/smoke.sh` builds `zag`, runs the basic commands, generates an app, and
-  builds and runs the generated app.
+- zag builds
+- zag version works
+- zag help works
+- zag doctor performs real checks
+- zag new creates a compilable Zig project
+- smoke test proves generated app builds and runs
 
 Not implemented yet:
 
@@ -90,42 +69,79 @@ Run the smoke test:
 ```sh
 zag version
 zag help
-zag new <name>
 zag doctor
+zag new <name>
 ```
 
 ### `zag version`
 
-Prints the current `zag` version.
+Prints:
+
+```text
+zag 0.0.1
+zig.zg application platform bootstrap
+```
 
 ### `zag help`
 
-Prints usage and supported commands.
+Prints usage text and lists the supported commands.
+
+### `zag doctor`
+
+Runs real checks for the minimum working environment:
+
+- the current directory is writable
+- `zig version` can run
+- `templates/basic` exists
+- `templates/basic/build.zig` exists
+- `templates/basic/src/main.zig` exists
+
+Failure messages explain what failed, the likely cause, and the next file or
+command to inspect.
 
 ### `zag new <name>`
 
 Creates a compilable Zig project using the `templates/basic` template. The
-command refuses to overwrite an existing directory and accepts only a single
-project directory name containing letters, numbers, `-`, or `_`.
+command refuses invalid project names and refuses to overwrite an existing file
+or directory.
 
-### `zag doctor`
+Generated projects contain:
 
-Checks the minimum environment needed for the first milestone. Failure messages
-explain what failed, why it likely failed, and which command or file to inspect
-next.
+```text
+<name>/
+├── build.zig
+└── src/
+    └── main.zig
+```
+
+Generated projects support:
+
+```sh
+zig build
+zig build run
+```
+
+The generated app prints:
+
+```text
+hello from zig.zg
+```
 
 ## Repository Structure
 
 ```text
 zig-zag/
 ├── build.zig
+├── Makefile
 ├── README.md
 ├── src/
 │   ├── main.zig
 │   ├── cli.zig
+│   ├── errors.zig
 │   ├── log.zig
-│   ├── fs.zig
-│   └── project.zig
+│   ├── project.zig
+│   ├── doctor.zig
+│   └── paths.zig
 ├── templates/
 │   └── basic/
 │       ├── build.zig

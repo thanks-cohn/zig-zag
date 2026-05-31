@@ -5,6 +5,15 @@ pub fn pathExists(path: []const u8) bool {
     return true;
 }
 
+pub fn fileExists(path: []const u8) bool {
+    const file = if (std.fs.path.isAbsolute(path))
+        std.fs.openFileAbsolute(path, .{}) catch return false
+    else
+        std.fs.cwd().openFile(path, .{}) catch return false;
+    file.close();
+    return true;
+}
+
 pub fn dirExists(path: []const u8) bool {
     var dir = if (std.fs.path.isAbsolute(path))
         std.fs.openDirAbsolute(path, .{}) catch return false

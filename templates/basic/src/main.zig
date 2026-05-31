@@ -1,5 +1,5 @@
 const std = @import("std");
 
 pub fn main() !void {
-    std.debug.print("Hello from zig.zg\n", .{});
+    std.debug.print("hello from zig.zg\n", .{});
 }

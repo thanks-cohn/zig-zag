@@ -1,0 +1,263 @@
+===============================================================================
+zig.zg MASTER MILESTONES & BENCHMARKS
+===============================================================================
+
+M0 - FOUNDATION
+-------------------------------------------------------------------------------
+[ ] zag version
+[ ] zag help
+[ ] zag doctor
+[ ] zag new
+[ ] smoke tests
+[ ] reproducible builds
+
+Benchmarks:
+- zag startup < 20 ms
+- zag new project < 1 sec
+- 100% smoke test pass rate
+
+===============================================================================
+
+M1 - PROJECT GENERATION
+-------------------------------------------------------------------------------
+[ ] api template
+[ ] web template
+[ ] library template
+[ ] worker template
+[ ] test template
+
+Benchmarks:
+- new project ready-to-run in < 60 sec
+- generated project compiles first try
+- project generation < 2 sec
+
+===============================================================================
+
+M2 - BUILD SYSTEM
+-------------------------------------------------------------------------------
+[ ] incremental builds
+[ ] dependency graph
+[ ] build caching
+[ ] release builds
+[ ] cross compilation
+
+Benchmarks:
+- hello world build < 1 sec
+- incremental rebuild < 100 ms
+- release build < 5 sec
+
+===============================================================================
+
+M3 - HTTP PLATFORM
+-------------------------------------------------------------------------------
+[ ] routing
+[ ] middleware
+[ ] request parsing
+[ ] response helpers
+[ ] static file serving
+
+Benchmarks:
+- startup < 5 ms
+- idle memory < 5 MB
+- hello world latency < 1 ms
+- 500k req/sec target
+
+===============================================================================
+
+M4 - API PLATFORM
+-------------------------------------------------------------------------------
+[ ] JSON serialization
+[ ] validation
+[ ] authentication
+[ ] authorization
+[ ] OpenAPI generation
+
+Benchmarks:
+- JSON encode > 1 GB/sec
+- JSON decode > 500 MB/sec
+- auth overhead < 5%
+
+===============================================================================
+
+M5 - DATABASE PLATFORM
+-------------------------------------------------------------------------------
+[ ] PostgreSQL
+[ ] SQLite
+[ ] migrations
+[ ] connection pooling
+[ ] query builder
+
+Benchmarks:
+- connection creation < 5 ms
+- migration execution deterministic
+- query overhead < 5%
+
+===============================================================================
+
+M6 - FRONTEND PLATFORM
+-------------------------------------------------------------------------------
+[ ] components
+[ ] reactive state
+[ ] routing
+[ ] forms
+[ ] asset pipeline
+
+Benchmarks:
+- initial page load < 50 KB framework cost
+- hydration < 10 ms
+- zero JS mode supported
+
+===============================================================================
+
+M7 - SSR PLATFORM
+-------------------------------------------------------------------------------
+[ ] server-side rendering
+[ ] streaming rendering
+[ ] component rendering
+[ ] route generation
+
+Benchmarks:
+- render page < 1 ms
+- TTFB < 20 ms local
+
+===============================================================================
+
+M8 - WASM PLATFORM
+-------------------------------------------------------------------------------
+[ ] wasm compilation
+[ ] browser runtime
+[ ] shared code
+[ ] shared validation
+[ ] shared models
+
+Benchmarks:
+- wasm output < 1 MB
+- startup < 10 ms
+- identical logic client/server
+
+===============================================================================
+
+M9 - DESKTOP PLATFORM
+-------------------------------------------------------------------------------
+[ ] Linux support
+[ ] Windows support
+[ ] macOS support
+[ ] native packaging
+
+Benchmarks:
+- app startup < 100 ms
+- memory < 20 MB idle
+
+===============================================================================
+
+M10 - OBSERVABILITY
+-------------------------------------------------------------------------------
+[ ] logging
+[ ] tracing
+[ ] profiling
+[ ] metrics
+[ ] diagnostics
+
+Benchmarks:
+- trace overhead < 2%
+- log overhead < 1%
+
+===============================================================================
+
+M11 - DEPLOYMENT PLATFORM
+-------------------------------------------------------------------------------
+[ ] single binary deployment
+[ ] self-contained deployment
+[ ] container support
+[ ] remote deployment
+
+Benchmarks:
+- deploy in one command
+- deploy artifact < 20 MB
+- cold deploy < 30 sec
+
+===============================================================================
+
+M12 - PACKAGE ECOSYSTEM
+-------------------------------------------------------------------------------
+[ ] package registry
+[ ] package publishing
+[ ] package verification
+[ ] dependency locking
+
+Benchmarks:
+- package install < 2 sec
+- deterministic resolution
+- cryptographic verification
+
+===============================================================================
+
+M13 - MOBILE PLATFORM
+-------------------------------------------------------------------------------
+[ ] Android
+[ ] iOS
+[ ] mobile wasm runtime
+[ ] mobile packaging
+
+Benchmarks:
+- startup < 200 ms
+- app size < 10 MB
+
+===============================================================================
+
+M14 - AI PLATFORM
+-------------------------------------------------------------------------------
+[ ] inference APIs
+[ ] embeddings
+[ ] vector storage
+[ ] local model support
+
+Benchmarks:
+- local-first operation
+- no cloud dependency required
+
+===============================================================================
+
+M15 - 1.0 RELEASE
+-------------------------------------------------------------------------------
+[ ] stable APIs
+[ ] documentation complete
+[ ] examples complete
+[ ] migration guarantees
+[ ] long-term support
+
+Benchmarks:
+- 100% documented public APIs
+- 95%+ test coverage
+- reproducible builds
+- backwards compatibility guarantees
+
+===============================================================================
+ULTIMATE ENGINEERING TARGETS
+===============================================================================
+
+[ ] One language
+[ ] One toolchain
+[ ] One package manager
+[ ] One build system
+[ ] One deployment artifact
+[ ] One frontend story
+[ ] One backend story
+[ ] One WASM story
+[ ] One desktop story
+[ ] One mobile story
+
+===============================================================================
+DREAM BENCHMARKS
+===============================================================================
+
+zag startup                    < 10 ms
+zag new project                < 1 sec
+hello world build              < 1 sec
+incremental rebuild            < 50 ms
+API startup                    < 5 ms
+idle memory                    < 5 MB
+hello world throughput         > 500k req/sec
+deploy artifact                < 20 MB
+first app experience           < 60 sec
+first deployment               < 10 min

@@ -78,11 +78,18 @@ cleanup
 
 make build
 ./zig-out/bin/zag version
-./zig-out/bin/zag help
+./zig-out/bin/zag help > "$OUTPUT_FILE" 2>&1
+expect_file_contains_line "$OUTPUT_FILE" "  zag build" "./zig-out/bin/zag help"
+expect_file_contains_line "$OUTPUT_FILE" "  zag build       build the current Zig project" "./zig-out/bin/zag help"
 ./zig-out/bin/zag doctor
 ./zig-out/bin/zag new smoke_app
 
 cd smoke_app
+../zig-out/bin/zag build > "$OUTPUT_FILE" 2>&1
+expect_file_contains_line "$OUTPUT_FILE" "[PASS] build.zig found" "../zig-out/bin/zag build"
+expect_file_contains_line "$OUTPUT_FILE" "[PASS] zig build passed" "../zig-out/bin/zag build"
+expect_file_not_contains "$OUTPUT_FILE" "hello from zig.zg" "../zig-out/bin/zag build"
+
 ../zig-out/bin/zag check > "$OUTPUT_FILE" 2>&1
 expect_file_contains_line "$OUTPUT_FILE" "[PASS] build.zig found" "../zig-out/bin/zag check"
 expect_file_contains_line "$OUTPUT_FILE" "[PASS] src directory found" "../zig-out/bin/zag check"
@@ -102,6 +109,7 @@ expect_failure_breadcrumb "./zig-out/bin/zag new existing_app" "ZAG_E_PROJECT_EX
 mkdir not_a_zig_project
 cd not_a_zig_project
 expect_failure_breadcrumb "../zig-out/bin/zag run" "ZAG_E_NO_BUILD_ZIG" ../zig-out/bin/zag run
+expect_failure_breadcrumb "../zig-out/bin/zag build" "ZAG_E_NO_BUILD_ZIG" ../zig-out/bin/zag build
 expect_failure_breadcrumb "../zig-out/bin/zag check" "ZAG_E_NO_BUILD_ZIG" ../zig-out/bin/zag check
 
 printf '%s\n' "smoke test passed"

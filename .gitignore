@@ -1,0 +1,5 @@
+.zig-cache/
+zig-out/
+.tools/
+hello/
+smoke_app/

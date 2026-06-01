@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ZIG="$ROOT/.tools/zig-x86_64-linux-0.14.1/zig"
+
+if [ ! -x "$ZIG" ]; then
+    echo "missing Zig 0.14.1 toolchain at:"
+    echo "$ZIG"
+    echo
+    echo "install with:"
+    echo "mkdir -p .tools"
+    echo "cd .tools"
+    echo "curl -L -o zig-0.14.1.tar.xz https://ziglang.org/download/0.14.1/zig-x86_64-linux-0.14.1.tar.xz"
+    echo "tar -xf zig-0.14.1.tar.xz"
+    exit 1
+fi
+
+export PATH="$ROOT/.tools/zig-x86_64-linux-0.14.1:$PATH"
+exec "$@"

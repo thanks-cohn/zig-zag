@@ -21,45 +21,47 @@ pub fn create(allocator: std.mem.Allocator, name: []const u8) !void {
     validateName(name) catch |err| return err;
 
     if (paths.pathExists(name)) {
-        log.err("project '{s}' already exists", .{name});
-        log.note("what failed: the destination path already exists", .{});
-        log.note("likely cause: a file or directory named '{s}' is already in this directory", .{name});
-        log.note("inspect next: choose a different name or inspect './{s}'", .{name});
+        errors.printBreadcrumb(.{
+            .code = errors.ZAG_E_PROJECT_EXISTS,
+            .where = "new/destination",
+            .what = "destination path already exists",
+            .path = name,
+            .why = "a file or directory with that name is already in the current directory",
+            .next = "choose a different name or inspect the existing path",
+        });
         return errors.ZagError.ProjectAlreadyExists;
     }
 
     const template_paths = findTemplatePaths(allocator) catch |err| {
-        log.err("basic template not available: {s}", .{@errorName(err)});
-        log.note("what failed: zag could not locate the basic project template", .{});
-        log.note("likely cause: the templates/basic directory is missing or zag is being run from an unexpected install layout", .{});
-        log.note("inspect next: run 'zag doctor' or inspect './templates/basic'", .{});
+        errors.printBreadcrumb(.{
+            .code = errors.ZAG_E_TEMPLATE_MISSING,
+            .where = "new/templates/basic",
+            .what = "expected template directory is missing",
+            .path = "templates/basic",
+            .why = "template directory is incomplete or repo checkout is damaged",
+            .next = "run `zag doctor`; inspect `templates/basic`",
+        });
         return err;
     };
     defer template_paths.deinit(allocator);
 
+    try ensureTemplateFile(template_paths.build_file, "new/templates/basic/build.zig", "expected template file is missing", errors.ZagError.BasicBuildFileMissing);
+    try ensureTemplateFile(template_paths.main_file, "new/templates/basic/src/main.zig", "expected template file is missing", errors.ZagError.BasicMainFileMissing);
+
     const build_contents = paths.readFileAlloc(allocator, template_paths.build_file) catch |err| {
-        log.err("failed to read '{s}': {s}", .{ template_paths.build_file, @errorName(err) });
-        log.note("what failed: the template build.zig file could not be read", .{});
-        log.note("likely cause: the template file is missing or unreadable", .{});
-        log.note("inspect next: inspect '{s}'", .{template_paths.build_file});
+        printIoBreadcrumb("new/read-template", "template build.zig file could not be read", template_paths.build_file, "template file is missing or unreadable", "inspect the template file");
         return err;
     };
     defer allocator.free(build_contents);
 
     const main_contents = paths.readFileAlloc(allocator, template_paths.main_file) catch |err| {
-        log.err("failed to read '{s}': {s}", .{ template_paths.main_file, @errorName(err) });
-        log.note("what failed: the template src/main.zig file could not be read", .{});
-        log.note("likely cause: the template file is missing or unreadable", .{});
-        log.note("inspect next: inspect '{s}'", .{template_paths.main_file});
+        printIoBreadcrumb("new/read-template", "template src/main.zig file could not be read", template_paths.main_file, "template file is missing or unreadable", "inspect the template file");
         return err;
     };
     defer allocator.free(main_contents);
 
     paths.ensureDir(name) catch |err| {
-        log.err("failed to create project directory './{s}': {s}", .{ name, @errorName(err) });
-        log.note("what failed: zag could not create the destination directory", .{});
-        log.note("likely cause: the current directory is not writable", .{});
-        log.note("inspect next: run 'pwd' and check directory permissions", .{});
+        printIoBreadcrumb("new/create-directory", "could not create the destination directory", name, "the current directory is not writable", "run `pwd` and check directory permissions");
         return err;
     };
     errdefer std.fs.cwd().deleteTree(name) catch {};
@@ -67,10 +69,7 @@ pub fn create(allocator: std.mem.Allocator, name: []const u8) !void {
     const src_path = try std.fs.path.join(allocator, &[_][]const u8{ name, "src" });
     defer allocator.free(src_path);
     paths.ensureDir(src_path) catch |err| {
-        log.err("failed to create source directory './{s}': {s}", .{ src_path, @errorName(err) });
-        log.note("what failed: zag could not create the src directory", .{});
-        log.note("likely cause: the destination directory is not writable", .{});
-        log.note("inspect next: inspect './{s}'", .{name});
+        printIoBreadcrumb("new/create-src", "could not create the src directory", src_path, "the destination directory is not writable", "inspect the generated project directory");
         return err;
     };
 
@@ -80,18 +79,12 @@ pub fn create(allocator: std.mem.Allocator, name: []const u8) !void {
     defer allocator.free(out_main);
 
     paths.writeFileExclusive(out_build, build_contents) catch |err| {
-        log.err("failed to write './{s}': {s}", .{ out_build, @errorName(err) });
-        log.note("what failed: zag could not write the generated build.zig", .{});
-        log.note("likely cause: the destination may not be writable or may already contain files", .{});
-        log.note("inspect next: inspect './{s}'", .{name});
+        printIoBreadcrumb("new/write-build", "could not write generated build.zig", out_build, "the destination may not be writable or may already contain files", "inspect the generated project directory");
         return err;
     };
 
     paths.writeFileExclusive(out_main, main_contents) catch |err| {
-        log.err("failed to write './{s}': {s}", .{ out_main, @errorName(err) });
-        log.note("what failed: zag could not write the generated src/main.zig", .{});
-        log.note("likely cause: the destination may not be writable or may already contain files", .{});
-        log.note("inspect next: inspect './{s}'", .{name});
+        printIoBreadcrumb("new/write-main", "could not write generated src/main.zig", out_main, "the destination may not be writable or may already contain files", "inspect the generated project directory");
         return err;
     };
 
@@ -104,37 +97,66 @@ pub fn create(allocator: std.mem.Allocator, name: []const u8) !void {
 
 fn validateName(name: []const u8) !void {
     if (name.len == 0) {
-        return invalidName("project name is empty", "zag new needs a directory name", "run 'zag help'", .{});
+        return invalidName("project name is empty", null, "zag new needs a directory name", "run `zag help`");
     }
 
     if (name[0] == '.') {
-        return invalidName("invalid project name '{s}'", "project names must not begin with '.'", "use a name like 'hello'", .{name});
+        return invalidName("project names must not begin with '.'", name, "leading dots are reserved for hidden or special paths", "use a name like `hello`");
     }
 
     if (std.mem.indexOfScalar(u8, name, '/') != null or std.mem.indexOfScalar(u8, name, '\\') != null) {
-        return invalidName("invalid project name '{s}'", "project names must be a single directory name, not a path", "use a name like 'hello'", .{name});
+        return invalidName("project names must be a single directory name, not a path", name, "path separators can write outside the intended destination", "use a name like `hello`");
     }
 
     if (std.mem.indexOf(u8, name, "..") != null) {
-        return invalidName("invalid project name '{s}'", "project names must not contain '..'", "use a name like 'hello'", .{name});
+        return invalidName("project names must not contain '..'", name, "parent-directory segments are not safe project names", "use a name like `hello`");
     }
 
     for (name) |ch| {
         if (std.ascii.isWhitespace(ch)) {
-            return invalidName("invalid project name '{s}'", "project names must not contain spaces", "use a name like 'hello_app'", .{name});
+            return invalidName("project names must not contain spaces", name, "spaces make generated command examples ambiguous", "use a name like `hello_app`");
         }
         if (!(std.ascii.isAlphanumeric(ch) or ch == '_' or ch == '-')) {
-            return invalidName("invalid project name '{s}'", "project names may contain only letters, numbers, '-' and '_'", "use a name like 'hello_app'", .{name});
+            return invalidName("project names may contain only letters, numbers, '-' and '_'", name, "unsupported characters are not accepted in generated project paths", "use a name like `hello_app`");
         }
     }
 }
 
-fn invalidName(comptime message: []const u8, comptime cause: []const u8, comptime next: []const u8, args: anytype) errors.ZagError {
-    log.err(message, args);
-    log.note("what failed: project name validation", .{});
-    log.note("likely cause: {s}", .{cause});
-    log.note("inspect next: {s}", .{next});
+fn invalidName(what: []const u8, path: ?[]const u8, why: []const u8, next: []const u8) errors.ZagError {
+    errors.printBreadcrumb(.{
+        .code = errors.ZAG_E_BAD_PROJECT_NAME,
+        .where = "new/validate-name",
+        .what = what,
+        .path = path,
+        .why = why,
+        .next = next,
+    });
     return errors.ZagError.InvalidProjectName;
+}
+
+fn ensureTemplateFile(path: []const u8, where: []const u8, what: []const u8, err: errors.ZagError) !void {
+    if (!paths.fileExists(path)) {
+        errors.printBreadcrumb(.{
+            .code = errors.ZAG_E_TEMPLATE_MISSING,
+            .where = where,
+            .what = what,
+            .path = path,
+            .why = "template directory is incomplete or repo checkout is damaged",
+            .next = "run `zag doctor`; inspect the missing template file",
+        });
+        return err;
+    }
+}
+
+fn printIoBreadcrumb(where: []const u8, what: []const u8, path: []const u8, why: []const u8, next: []const u8) void {
+    errors.printBreadcrumb(.{
+        .code = errors.ZAG_E_IO,
+        .where = where,
+        .what = what,
+        .path = path,
+        .why = why,
+        .next = next,
+    });
 }
 
 pub fn findTemplatePaths(allocator: std.mem.Allocator) !TemplatePaths {

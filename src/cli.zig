@@ -1,6 +1,7 @@
 const std = @import("std");
 const builder = @import("build_cmd.zig");
 const checker = @import("check.zig");
+const cleaner = @import("clean.zig");
 const doctor = @import("doctor.zig");
 const errors = @import("errors.zig");
 const log = @import("log.zig");
@@ -74,6 +75,20 @@ pub fn run(allocator: std.mem.Allocator, args: []const []const u8) !u8 {
         return runner.run(allocator);
     }
 
+    if (std.mem.eql(u8, command, "clean")) {
+        if (args.len != 2) {
+            errors.printBreadcrumb(.{
+                .code = errors.ZAG_E_IO,
+                .where = "cli/clean",
+                .what = "expected no extra arguments",
+                .why = "the command was run with unsupported arguments",
+                .next = "run `zag help`",
+            });
+            return 1;
+        }
+        return cleaner.run(allocator);
+    }
+
     if (std.mem.eql(u8, command, "new")) {
         if (args.len != 3) {
             errors.printBreadcrumb(.{
@@ -112,6 +127,7 @@ fn printHelp() void {
     log.out("  zag run", .{});
     log.out("  zag build", .{});
     log.out("  zag check", .{});
+    log.out("  zag clean", .{});
     log.out("", .{});
     log.out("commands:", .{});
     log.out("  zag version     print the zag version", .{});
@@ -121,4 +137,5 @@ fn printHelp() void {
     log.out("  zag run         run the current Zig project with zig build run", .{});
     log.out("  zag build       build the current Zig project", .{});
     log.out("  zag check       check the current Zig project without running it", .{});
+    log.out("  zag clean       clean build artifacts for the current Zig project", .{});
 }

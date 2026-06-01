@@ -22,6 +22,7 @@ pub const ZAG_E_ZIG_NOT_FOUND = "ZAG_E_ZIG_NOT_FOUND";
 pub const ZAG_E_NOT_WRITABLE = "ZAG_E_NOT_WRITABLE";
 pub const ZAG_E_NO_BUILD_ZIG = "ZAG_E_NO_BUILD_ZIG";
 pub const ZAG_E_CHILD_FAILED = "ZAG_E_CHILD_FAILED";
+pub const ZAG_E_CLEAN_FAILED = "ZAG_E_CLEAN_FAILED";
 pub const ZAG_E_IO = "ZAG_E_IO";
 
 pub const Breadcrumb = struct {

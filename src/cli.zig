@@ -39,6 +39,7 @@ pub fn run(allocator: std.mem.Allocator, args: []const []const u8) !u8 {
                 .code = errors.ZAG_E_IO,
                 .where = "cli/check",
                 .what = "expected no extra arguments",
+                .when = "before running check command",
                 .why = "the command was run with unsupported arguments",
                 .next = "run `zag help`",
             });
@@ -53,6 +54,7 @@ pub fn run(allocator: std.mem.Allocator, args: []const []const u8) !u8 {
                 .code = errors.ZAG_E_IO,
                 .where = "cli/build",
                 .what = "expected no extra arguments",
+                .when = "before running build command",
                 .why = "the command was run with unsupported arguments",
                 .next = "run `zag help`",
             });
@@ -67,6 +69,7 @@ pub fn run(allocator: std.mem.Allocator, args: []const []const u8) !u8 {
                 .code = errors.ZAG_E_IO,
                 .where = "cli/run",
                 .what = "expected no extra arguments",
+                .when = "before running run command",
                 .why = "the command was run with unsupported arguments",
                 .next = "run `zag help`",
             });
@@ -81,6 +84,7 @@ pub fn run(allocator: std.mem.Allocator, args: []const []const u8) !u8 {
                 .code = errors.ZAG_E_IO,
                 .where = "cli/clean",
                 .what = "expected no extra arguments",
+                .when = "before running clean command",
                 .why = "the command was run with unsupported arguments",
                 .next = "run `zag help`",
             });
@@ -95,6 +99,7 @@ pub fn run(allocator: std.mem.Allocator, args: []const []const u8) !u8 {
                 .code = errors.ZAG_E_BAD_PROJECT_NAME,
                 .where = "cli/new",
                 .what = "expected exactly one project name",
+                .when = "before creating project",
                 .why = "the command was run without a name or with extra arguments",
                 .next = "run `zag help`",
             });

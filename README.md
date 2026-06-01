@@ -17,6 +17,7 @@ The first real CLI foundation works now:
 - zag help works
 - zag doctor performs real checks
 - zag new creates a compilable Zig project
+- zag run executes generated apps from inside a project
 - smoke test proves generated app builds and runs
 
 Not implemented yet:
@@ -55,7 +56,7 @@ Create a new Zig app:
 ./zig-out/bin/zag new my_app
 cd my_app
 zig build
-zig build run
+../zig-out/bin/zag run
 ```
 
 Run the smoke test:
@@ -71,6 +72,7 @@ zag version
 zag help
 zag doctor
 zag new <name>
+zag run
 ```
 
 ### `zag version`
@@ -120,6 +122,16 @@ Generated projects support:
 zig build
 zig build run
 ```
+
+From inside a generated project, zag can run the app too:
+
+```sh
+../zig-out/bin/zag run
+```
+
+### `zag run`
+
+Runs `zig build run` in the current directory. The command must be used from inside a Zig project containing `build.zig`, and it forwards the app output directly to the terminal.
 
 The generated app prints:
 

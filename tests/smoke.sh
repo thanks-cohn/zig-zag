@@ -27,6 +27,19 @@ expect_file_contains() {
     fi
 }
 
+expect_file_not_contains() {
+    file_path=$1
+    unexpected_text=$2
+    context=$3
+
+    if grep -F "$unexpected_text" "$file_path" >/dev/null; then
+        printf '%s\n' "smoke test failed: unexpected '$unexpected_text' in: $context" >&2
+        printf '%s\n' "command output:" >&2
+        cat "$file_path" >&2
+        exit 1
+    fi
+}
+
 expect_file_contains_line() {
     file_path=$1
     expected_text=$2
@@ -70,6 +83,12 @@ make build
 ./zig-out/bin/zag new smoke_app
 
 cd smoke_app
+../zig-out/bin/zag check > "$OUTPUT_FILE" 2>&1
+expect_file_contains_line "$OUTPUT_FILE" "[PASS] build.zig found" "../zig-out/bin/zag check"
+expect_file_contains_line "$OUTPUT_FILE" "[PASS] src directory found" "../zig-out/bin/zag check"
+expect_file_contains_line "$OUTPUT_FILE" "[PASS] zig build passed" "../zig-out/bin/zag check"
+expect_file_not_contains "$OUTPUT_FILE" "hello from zig.zg" "../zig-out/bin/zag check"
+
 ../zig-out/bin/zag run > "$OUTPUT_FILE" 2>&1
 expect_file_contains_line "$OUTPUT_FILE" "hello from zig.zg" "../zig-out/bin/zag run"
 
@@ -83,5 +102,6 @@ expect_failure_breadcrumb "./zig-out/bin/zag new existing_app" "ZAG_E_PROJECT_EX
 mkdir not_a_zig_project
 cd not_a_zig_project
 expect_failure_breadcrumb "../zig-out/bin/zag run" "ZAG_E_NO_BUILD_ZIG" ../zig-out/bin/zag run
+expect_failure_breadcrumb "../zig-out/bin/zag check" "ZAG_E_NO_BUILD_ZIG" ../zig-out/bin/zag check
 
 printf '%s\n' "smoke test passed"

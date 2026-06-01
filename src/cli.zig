@@ -64,6 +64,7 @@ pub fn run(allocator: std.mem.Allocator, args: []const []const u8) !u8 {
         .where = "cli/dispatch",
         .what = "zag does not have that command",
         .path = command,
+        .when = "while dispatching CLI arguments",
         .why = "typo or unsupported command",
         .next = "run `zag help`",
     });

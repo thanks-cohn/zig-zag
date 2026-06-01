@@ -15,15 +15,14 @@ cd "$ROOT_DIR"
 rm -rf "$SMOKE_DIR"
 rm -f "$OUTPUT_FILE"
 
-zig build
+make build
 ./zig-out/bin/zag version
 ./zig-out/bin/zag help
 ./zig-out/bin/zag doctor
 ./zig-out/bin/zag new smoke_app
 
 cd smoke_app
-zig build
-zig build run > "$OUTPUT_FILE" 2>&1
+../zig-out/bin/zag run > "$OUTPUT_FILE" 2>&1
 
 if ! grep -F "hello from zig.zg" "$OUTPUT_FILE" >/dev/null; then
     printf '%s\n' "smoke test failed: generated app output did not contain 'hello from zig.zg'" >&2

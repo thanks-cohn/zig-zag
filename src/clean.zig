@@ -36,30 +36,45 @@ pub fn run(allocator: std.mem.Allocator) !u8 {
 }
 
 fn cleanArtifact(artifact: []const u8) bool {
-    if (!paths.pathExists(artifact)) {
+    const exists = artifactExists(artifact) catch {
+        errors.printBreadcrumb(.{
+            .code = errors.ZAG_E_CLEAN_FAILED,
+            .where = "clean/check-artifact",
+            .what = "could not inspect build artifact",
+            .path = artifact,
+            .when = "before cleaning build artifacts",
+            .why = "the artifact may be inaccessible or permissions may be denied",
+            .next = "inspect permissions with `ls -la`; remove manually if safe",
+        });
+        return false;
+    };
+
+    if (!exists) {
         log.pass("{s} already clean", .{artifact});
         return true;
     }
 
-    std.fs.cwd().deleteTree(artifact) catch |err| switch (err) {
-        error.FileNotFound => {
-            log.pass("{s} already clean", .{artifact});
-            return true;
-        },
-        else => {
-            errors.printBreadcrumb(.{
-                .code = errors.ZAG_E_CLEAN_FAILED,
-                .where = "clean/remove-artifact",
-                .what = "could not remove build artifact",
-                .path = artifact,
-                .when = "while cleaning build artifacts",
-                .why = "the artifact may be locked, permission denied, or not removable",
-                .next = "inspect permissions with `ls -la`; remove manually if safe",
-            });
-            return false;
-        },
+    std.fs.cwd().deleteTree(artifact) catch {
+        errors.printBreadcrumb(.{
+            .code = errors.ZAG_E_CLEAN_FAILED,
+            .where = "clean/remove-artifact",
+            .what = "could not remove build artifact",
+            .path = artifact,
+            .when = "while cleaning build artifacts",
+            .why = "the artifact may be locked, permission denied, or not removable",
+            .next = "inspect permissions with `ls -la`; remove manually if safe",
+        });
+        return false;
     };
 
     log.pass("removed {s}", .{artifact});
+    return true;
+}
+
+fn artifactExists(artifact: []const u8) !bool {
+    std.fs.cwd().access(artifact, .{}) catch |err| switch (err) {
+        error.FileNotFound => return false,
+        else => return err,
+    };
     return true;
 }

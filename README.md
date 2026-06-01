@@ -29,7 +29,6 @@ Not implemented yet:
 - desktop or mobile runtimes
 - deployment tooling
 
-Those features should grow from this foundation rather than from placeholders.
 
 ## Quick Start
 
@@ -188,13 +187,3 @@ zig-zag/
     └── smoke.sh
 ```
 
-## Philosophy
-
-This is not a toy and not a theatrical demo. The project should prefer small,
-real, compiling foundations over invented APIs. Each milestone should increase
-trust: clear commands, understandable failures, real generated code, and no fake
-framework surface area.
-
-The first win is not routing, frontend rendering, or WebAssembly. The first win
-is that a developer can clone the repository, build `zag`, create a Zig app,
-build it, run it, and understand what to inspect if something fails.

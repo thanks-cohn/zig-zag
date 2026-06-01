@@ -1,5 +1,85 @@
 # zig.zg
 
+
+A Zig-native application platform, built one real command at a time.
+
+zig.zg is an early attempt to give Zig the application-layer path that made ecosystems like Node.js, ASP.NET, Rails, Laravel, and similar platforms practical for everyday software.
+
+The idea is simple:
+
+Zig already has the language.
+
+zig.zg is building the path.
+
+Node.js did not win only because JavaScript existed. It won because JavaScript became a path: create the project, run the project, install packages, build services, write CLIs, serve APIs, ship tools, and stay inside one familiar world.
+
+ASP.NET did not win only because C# existed. It won because C# developers had a serious application platform: project structure, build commands, web services, configuration, diagnostics, deployment paths, and a coherent way to build large software.
+
+Zig has many of the traits a foundational language should have: it is small, explicit, fast, cross-compilable, close to the machine, and resistant to unnecessary magic.
+
+But a language is not enough.
+
+Application developers need a path.
+
+They need a first mile.
+
+They need obvious commands.
+
+They need repeatable structure.
+
+They need failure messages that do not abandon them.
+
+They need a way to create, check, build, run, inspect, diagnose, package, and eventually deploy real applications without leaving the Zig-native world.
+
+zig.zg exists to build that missing layer.
+
+Not by turning Zig into JavaScript.
+
+Not by hiding the machine.
+
+Not by pretending the repo is already Node.js, ASP.NET, Rails, Laravel, Phoenix, or anything else mature.
+
+That would be fake.
+
+The claim is narrower and more serious:
+
+Zig has the qualities of a foundational language, but it needs a practical application layer.
+
+zig.zg is building that layer one real command at a time.
+
+The first spine is intentionally simple:
+
+    zag new
+    zag doctor
+    zag check
+    zag build
+    zag run
+
+That is not the whole platform.
+
+That is the beginning of the platform.
+
+A full-stack language does not become full-stack by slogan. It becomes full-stack when a developer can start with nothing, create something real, verify it, build it, run it, understand what broke, and keep moving.
+
+The long-term goal is for Zig to become viable not only for systems programming, embedded work, kernels, tools, games, allocators, and low-level infrastructure, but also for web services, APIs, background workers, admin tools, local applications, desktop utilities, deployable services, and eventually full-stack products.
+
+The bet behind zig.zg is this:
+
+If Zig can compile the world, it should also be able to build the app.
+
+A developer should not have to abandon Zig the moment they move above the systems layer.
+
+A small team should be able to choose Zig not only for the core engine, but for the surrounding application.
+
+A builder should be able to make the service, the worker, the CLI, the local tool, the deployable binary, and the operational surface in one inspectable language.
+
+That does not mean pretending the ecosystem is already finished.
+
+It means refusing to accept that Zig must remain trapped below the application layer forever.
+
+zig.zg is the climb upward.
+
+------------------------------
 The full-stack application platform for Zig.
 
 CLI name: `zag`.

@@ -99,6 +99,10 @@ if [ ! -d .zig-cache ]; then
     printf '%s\n' "smoke test failed: zag build did not create .zig-cache before clean" >&2
     exit 1
 fi
+if [ ! -d ../.zig-cache ]; then
+    printf '%s\n' "smoke test failed: repo .zig-cache was not present before smoke_app clean" >&2
+    exit 1
+fi
 
 ../zig-out/bin/zag clean > "$OUTPUT_FILE" 2>&1
 expect_file_contains_line "$OUTPUT_FILE" "[PASS] build.zig found" "../zig-out/bin/zag clean"
@@ -120,6 +124,17 @@ if [ ! -f src/main.zig ]; then
     printf '%s\n' "smoke test failed: zag clean removed src/main.zig" >&2
     exit 1
 fi
+if [ ! -d ../.zig-cache ]; then
+    printf '%s\n' "smoke test failed: zag clean removed parent .zig-cache" >&2
+    exit 1
+fi
+mkdir keep_me
+expect_failure_breadcrumb "../zig-out/bin/zag clean keep_me" "ZAG_E_IO" ../zig-out/bin/zag clean keep_me
+if [ ! -d keep_me ]; then
+    printf '%s\n' "smoke test failed: zag clean accepted and removed an arbitrary path" >&2
+    exit 1
+fi
+rmdir keep_me
 
 ../zig-out/bin/zag clean > "$OUTPUT_FILE" 2>&1
 expect_file_contains_line "$OUTPUT_FILE" "[PASS] build.zig found" "second ../zig-out/bin/zag clean"

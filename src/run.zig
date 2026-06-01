@@ -9,6 +9,7 @@ pub fn run(allocator: std.mem.Allocator) !u8 {
             .where = "run/project-root",
             .what = "build.zig was not found in the current directory",
             .path = "build.zig",
+            .when = "before running zig build run",
             .why = "zag run must be used inside a Zig project",
             .next = "run `pwd`; inspect the current directory for `build.zig`",
         });

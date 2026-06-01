@@ -29,6 +29,7 @@ pub const Breadcrumb = struct {
     where: []const u8,
     what: []const u8,
     path: ?[]const u8 = null,
+    when: ?[]const u8 = null,
     why: []const u8,
     next: []const u8,
 };
@@ -39,6 +40,9 @@ pub fn printBreadcrumb(breadcrumb: Breadcrumb) void {
     std.debug.print("what: {s}\n", .{breadcrumb.what});
     if (breadcrumb.path) |path| {
         std.debug.print("path: {s}\n", .{path});
+    }
+    if (breadcrumb.when) |when| {
+        std.debug.print("when: {s}\n", .{when});
     }
     std.debug.print("why: {s}\n", .{breadcrumb.why});
     std.debug.print("next: {s}\n", .{breadcrumb.next});

@@ -14,9 +14,35 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-expect_failure_contains() {
-    command_text=$1
+expect_file_contains() {
+    file_path=$1
     expected_text=$2
+    context=$3
+
+    if ! grep -F "$expected_text" "$file_path" >/dev/null; then
+        printf '%s\n' "smoke test failed: missing '$expected_text' from: $context" >&2
+        printf '%s\n' "command output:" >&2
+        cat "$file_path" >&2
+        exit 1
+    fi
+}
+
+expect_file_contains_line() {
+    file_path=$1
+    expected_text=$2
+    context=$3
+
+    if ! grep -Fx "$expected_text" "$file_path" >/dev/null; then
+        printf '%s\n' "smoke test failed: missing exact line '$expected_text' from: $context" >&2
+        printf '%s\n' "command output:" >&2
+        cat "$file_path" >&2
+        exit 1
+    fi
+}
+
+expect_failure_breadcrumb() {
+    command_text=$1
+    expected_code=$2
     shift 2
 
     rm -f "$ERROR_FILE"
@@ -26,12 +52,12 @@ expect_failure_contains() {
         exit 1
     fi
 
-    if ! grep -F "$expected_text" "$ERROR_FILE" >/dev/null; then
-        printf '%s\n' "smoke test failed: missing '$expected_text' from: $command_text" >&2
-        printf '%s\n' "command output:" >&2
-        cat "$ERROR_FILE" >&2
-        exit 1
-    fi
+    expect_file_contains "$ERROR_FILE" "$expected_code" "$command_text"
+    expect_file_contains "$ERROR_FILE" "error:" "$command_text"
+    expect_file_contains "$ERROR_FILE" "where:" "$command_text"
+    expect_file_contains "$ERROR_FILE" "what:" "$command_text"
+    expect_file_contains "$ERROR_FILE" "when:" "$command_text"
+    expect_file_contains "$ERROR_FILE" "next:" "$command_text"
 }
 
 cd "$ROOT_DIR"
@@ -45,23 +71,17 @@ make build
 
 cd smoke_app
 ../zig-out/bin/zag run > "$OUTPUT_FILE" 2>&1
-
-if ! grep -F "hello from zig.zg" "$OUTPUT_FILE" >/dev/null; then
-    printf '%s\n' "smoke test failed: generated app output did not contain 'hello from zig.zg'" >&2
-    printf '%s\n' "generated app output:" >&2
-    cat "$OUTPUT_FILE" >&2
-    exit 1
-fi
+expect_file_contains_line "$OUTPUT_FILE" "hello from zig.zg" "../zig-out/bin/zag run"
 
 cd "$ROOT_DIR"
-expect_failure_contains "./zig-out/bin/zag does-not-exist" "ZAG_E_UNKNOWN_COMMAND" ./zig-out/bin/zag does-not-exist
-expect_failure_contains "./zig-out/bin/zag new ../bad" "ZAG_E_BAD_PROJECT_NAME" ./zig-out/bin/zag new "../bad"
+expect_failure_breadcrumb "./zig-out/bin/zag does-not-exist" "ZAG_E_UNKNOWN_COMMAND" ./zig-out/bin/zag does-not-exist
+expect_failure_breadcrumb "./zig-out/bin/zag new ../bad" "ZAG_E_BAD_PROJECT_NAME" ./zig-out/bin/zag new "../bad"
 
 mkdir existing_app
-expect_failure_contains "./zig-out/bin/zag new existing_app" "ZAG_E_PROJECT_EXISTS" ./zig-out/bin/zag new existing_app
+expect_failure_breadcrumb "./zig-out/bin/zag new existing_app" "ZAG_E_PROJECT_EXISTS" ./zig-out/bin/zag new existing_app
 
 mkdir not_a_zig_project
 cd not_a_zig_project
-expect_failure_contains "../zig-out/bin/zag run" "ZAG_E_NO_BUILD_ZIG" ../zig-out/bin/zag run
+expect_failure_breadcrumb "../zig-out/bin/zag run" "ZAG_E_NO_BUILD_ZIG" ../zig-out/bin/zag run
 
 printf '%s\n' "smoke test passed"

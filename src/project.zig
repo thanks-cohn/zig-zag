@@ -26,6 +26,7 @@ pub fn create(allocator: std.mem.Allocator, name: []const u8) !void {
             .where = "new/destination",
             .what = "destination path already exists",
             .path = name,
+            .when = "before copying template files",
             .why = "a file or directory with that name is already in the current directory",
             .next = "choose a different name or inspect the existing path",
         });
@@ -128,6 +129,7 @@ fn invalidName(what: []const u8, path: ?[]const u8, why: []const u8, next: []con
         .where = "new/validate-name",
         .what = what,
         .path = path,
+        .when = "while validating project name",
         .why = why,
         .next = next,
     });

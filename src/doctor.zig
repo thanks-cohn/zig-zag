@@ -42,8 +42,7 @@ pub fn run(allocator: std.mem.Allocator) !u8 {
         log.pass("zig found: {s}", .{trimmed});
     }
 
-    const template_paths = project.findTemplatePaths(allocator) catch |err| blk: {
-        _ = err;
+    const template_paths = project.findTemplatePaths(allocator) catch blk: {
         failed = true;
         log.fail("templates/basic found", .{});
         printTemplateBreadcrumb("doctor/templates/basic", "expected template directory is missing", "templates/basic");

@@ -8,11 +8,11 @@ pub fn run(allocator: std.mem.Allocator) !u8 {
     if (!paths.fileExists("build.zig")) {
         errors.printBreadcrumb(.{
             .code = errors.ZAG_E_NO_BUILD_ZIG,
-            .where = "check/current-project",
+            .where = "build/current-project",
             .what = "expected build.zig in current directory",
             .path = "./build.zig",
             .when = "before running zig build",
-            .why = "zag check must be used inside a Zig project",
+            .why = "zag build must be used inside a Zig project",
             .next = "run `pwd`; run `ls`; or create a project with `zag new my_app`",
         });
         return 1;
@@ -20,13 +20,9 @@ pub fn run(allocator: std.mem.Allocator) !u8 {
 
     log.pass("build.zig found", .{});
 
-    if (paths.dirExists("src")) {
-        log.pass("src directory found", .{});
-    }
-
     const code = zig_build.run(allocator, .{
-        .where = "check/zig-build",
-        .when = "while checking current Zig project",
+        .where = "build/zig-build",
+        .when = "while building current Zig project",
         .start_what = "zig build could not be started",
         .start_why = "zig is not installed, is not on PATH, or the child process could not start",
         .failed_what = "zig build failed",

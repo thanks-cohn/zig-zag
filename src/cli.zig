@@ -1,5 +1,6 @@
 const std = @import("std");
 const doctor = @import("doctor.zig");
+const errors = @import("errors.zig");
 const log = @import("log.zig");
 const project = @import("project.zig");
 const runner = @import("run.zig");
@@ -31,10 +32,13 @@ pub fn run(allocator: std.mem.Allocator, args: []const []const u8) !u8 {
 
     if (std.mem.eql(u8, command, "run")) {
         if (args.len != 2) {
-            log.err("invalid arguments for 'run'", .{});
-            log.note("what failed: expected no extra arguments", .{});
-            log.note("likely cause: the command was run with unsupported arguments", .{});
-            log.note("inspect next: run 'zag help'", .{});
+            errors.printBreadcrumb(.{
+                .code = errors.ZAG_E_IO,
+                .where = "cli/run",
+                .what = "expected no extra arguments",
+                .why = "the command was run with unsupported arguments",
+                .next = "run `zag help`",
+            });
             return 1;
         }
         return runner.run(allocator);
@@ -42,20 +46,27 @@ pub fn run(allocator: std.mem.Allocator, args: []const []const u8) !u8 {
 
     if (std.mem.eql(u8, command, "new")) {
         if (args.len != 3) {
-            log.err("invalid arguments for 'new'", .{});
-            log.note("what failed: expected exactly one project name", .{});
-            log.note("likely cause: the command was run without a name or with extra arguments", .{});
-            log.note("inspect next: run 'zag help'", .{});
+            errors.printBreadcrumb(.{
+                .code = errors.ZAG_E_BAD_PROJECT_NAME,
+                .where = "cli/new",
+                .what = "expected exactly one project name",
+                .why = "the command was run without a name or with extra arguments",
+                .next = "run `zag help`",
+            });
             return 1;
         }
         project.create(allocator, args[2]) catch return 1;
         return 0;
     }
 
-    log.err("unknown command '{s}'", .{command});
-    log.note("what failed: zag does not have that command", .{});
-    log.note("likely cause: typo or unsupported command", .{});
-    log.note("inspect next: run 'zag help'", .{});
+    errors.printBreadcrumb(.{
+        .code = errors.ZAG_E_UNKNOWN_COMMAND,
+        .where = "cli/dispatch",
+        .what = "zag does not have that command",
+        .path = command,
+        .why = "typo or unsupported command",
+        .next = "run `zag help`",
+    });
     return 1;
 }
 

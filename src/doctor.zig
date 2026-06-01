@@ -12,13 +12,28 @@ pub fn run(allocator: std.mem.Allocator) !u8 {
     } else {
         failed = true;
         log.fail("current directory writable", .{});
-        explain("current directory is not writable", "zag needs to create files for generated projects", "run 'pwd' and check directory permissions");
+        errors.printBreadcrumb(.{
+            .code = errors.ZAG_E_NOT_WRITABLE,
+            .where = "doctor/current-directory",
+            .what = "current directory is not writable",
+            .path = ".",
+            .why = "zag needs to create files for generated projects",
+            .next = "run `pwd` and check directory permissions",
+        });
     }
 
     const zig_version = readZigVersion(allocator) catch |err| blk: {
         failed = true;
         log.fail("zig found", .{});
-        explainError("zig version could not be executed successfully", "Zig is not installed, is not on PATH, or returned an error", "run 'zig version'", err);
+        const code = if (err == errors.ZagError.ZigNotFound) errors.ZAG_E_ZIG_NOT_FOUND else errors.ZAG_E_CHILD_FAILED;
+        errors.printBreadcrumb(.{
+            .code = code,
+            .where = "doctor/zig-version",
+            .what = "zig version could not be executed successfully",
+            .path = "zig",
+            .why = "Zig is not installed, is not on PATH, or returned an error",
+            .next = "run `zig version`; inspect `zig-version.txt`",
+        });
         break :blk null;
     };
     if (zig_version) |text| {
@@ -28,13 +43,14 @@ pub fn run(allocator: std.mem.Allocator) !u8 {
     }
 
     const template_paths = project.findTemplatePaths(allocator) catch |err| blk: {
+        _ = err;
         failed = true;
         log.fail("templates/basic found", .{});
-        explainError("templates/basic could not be found", "the repository templates are missing or zag is running from an unsupported layout", "inspect './templates/basic' or run from the repository root", err);
+        printTemplateBreadcrumb("doctor/templates/basic", "expected template directory is missing", "templates/basic");
         log.fail("basic build.zig found", .{});
-        explain("templates/basic/build.zig could not be checked", "the basic template directory was not found", "inspect './templates/basic/build.zig'");
+        printTemplateBreadcrumb("doctor/templates/basic/build.zig", "template file could not be checked because templates/basic is missing", "templates/basic/build.zig");
         log.fail("basic src/main.zig found", .{});
-        explain("templates/basic/src/main.zig could not be checked", "the basic template directory was not found", "inspect './templates/basic/src/main.zig'");
+        printTemplateBreadcrumb("doctor/templates/basic/src/main.zig", "template file could not be checked because templates/basic is missing", "templates/basic/src/main.zig");
         break :blk null;
     };
     if (template_paths) |tp| {
@@ -45,7 +61,7 @@ pub fn run(allocator: std.mem.Allocator) !u8 {
         } else {
             failed = true;
             log.fail("templates/basic found", .{});
-            explain("templates/basic is missing", "zag new copies the basic template directory", "inspect './templates/basic'");
+            printTemplateBreadcrumb("doctor/templates/basic", "expected template directory is missing", tp.basic_dir);
         }
 
         if (paths.fileExists(tp.build_file)) {
@@ -53,7 +69,7 @@ pub fn run(allocator: std.mem.Allocator) !u8 {
         } else {
             failed = true;
             log.fail("basic build.zig found", .{});
-            explain("templates/basic/build.zig is missing", "the basic template is incomplete", "inspect './templates/basic/build.zig'");
+            printTemplateBreadcrumb("doctor/templates/basic/build.zig", "expected template file is missing", tp.build_file);
         }
 
         if (paths.fileExists(tp.main_file)) {
@@ -61,7 +77,7 @@ pub fn run(allocator: std.mem.Allocator) !u8 {
         } else {
             failed = true;
             log.fail("basic src/main.zig found", .{});
-            explain("templates/basic/src/main.zig is missing", "the basic template is incomplete", "inspect './templates/basic/src/main.zig'");
+            printTemplateBreadcrumb("doctor/templates/basic/src/main.zig", "expected template file is missing", tp.main_file);
         }
     }
 
@@ -96,14 +112,13 @@ fn readZigVersion(allocator: std.mem.Allocator) ![]u8 {
     return result.stdout;
 }
 
-fn explain(what_failed: []const u8, likely_cause: []const u8, next: []const u8) void {
-    log.note("what failed: {s}", .{what_failed});
-    log.note("likely cause: {s}", .{likely_cause});
-    log.note("inspect next: {s}", .{next});
-}
-
-fn explainError(what_failed: []const u8, likely_cause: []const u8, next: []const u8, err: anyerror) void {
-    log.note("what failed: {s} ({s})", .{ what_failed, @errorName(err) });
-    log.note("likely cause: {s}", .{likely_cause});
-    log.note("inspect next: {s}", .{next});
+fn printTemplateBreadcrumb(where: []const u8, what: []const u8, path: []const u8) void {
+    errors.printBreadcrumb(.{
+        .code = errors.ZAG_E_TEMPLATE_MISSING,
+        .where = where,
+        .what = what,
+        .path = path,
+        .why = "template directory is incomplete or repo checkout is damaged",
+        .next = "run `git status`; inspect the template path",
+    });
 }

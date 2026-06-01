@@ -38,10 +38,10 @@ Requirements:
 - Zig installed and available on `PATH`
 - A writable working directory
 
-Build the CLI:
+Build the CLI with the pinned toolchain from the repo Makefile:
 
 ```sh
-zig build
+make build
 ```
 
 Check the local environment:
@@ -59,10 +59,10 @@ zig build
 ../zig-out/bin/zag run
 ```
 
-Run the smoke test:
+Run the smoke test with the repo Makefile:
 
 ```sh
-./tests/smoke.sh
+make smoke
 ```
 
 ## Commands
@@ -98,8 +98,33 @@ Runs real checks for the minimum working environment:
 - `templates/basic/build.zig` exists
 - `templates/basic/src/main.zig` exists
 
-Failure messages explain what failed, the likely cause, and the next file or
-command to inspect.
+Failure messages use breadcrumb errors where they have been standardized.
+
+## Breadcrumb errors
+
+zag failures are being standardized so users can search for stable error codes
+and quickly find the broken step. Standardized failures include:
+
+- an error code
+- where the failure happened
+- what operation failed
+- the path involved, when relevant
+- why it probably failed, when known
+- the next command or file to inspect
+
+Example shape:
+
+```text
+error: ZAG_E_NO_BUILD_ZIG
+where: run/project-root
+what: build.zig was not found in the current directory
+path: build.zig
+why: zag run must be used inside a Zig project
+next: run `pwd`; inspect the current directory for `build.zig`
+```
+
+Not every possible failure is perfect yet, but command failures covered by the
+current smoke test now use this breadcrumb shape.
 
 ### `zag new <name>`
 
